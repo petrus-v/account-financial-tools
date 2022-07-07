@@ -46,7 +46,9 @@ class AccountMove(models.Model):
                     seq = move.journal_id.refund_sequence_id
                 else:
                     seq = move.journal_id.sequence_id
-                name = seq.next_by_id(sequence_date=move.date)
+                name = seq.with_context(ir_sequence_date=move.date).next_by_id(
+                    sequence_date=move.date
+                )
             move.name = name
 
     # We must by-pass this constraint of sequence.mixin
