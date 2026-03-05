@@ -77,8 +77,7 @@ class AccountLoanLine(models.Model):
                 invoice.filtered(
                     lambda m: m.currency_id.round(m.amount_total) < 0
                 ).action_switch_move_type()
-                if record.loan_id.post_invoice:
-                    invoice.action_post()
+                invoice._post(soft=not record.loan_id.post_invoice)
                 if (
                     record.long_term_loan_account_id
                     and record.long_term_principal_amount != 0
@@ -86,8 +85,7 @@ class AccountLoanLine(models.Model):
                     move = self.env["account.move"].create(
                         record._long_term_move_vals()
                     )
-                    if record.loan_id.post_invoice:
-                        move.action_post()
+                    move._post(soft=not record.loan_id.post_invoice)
                     res.append(move.id)
         return res
 

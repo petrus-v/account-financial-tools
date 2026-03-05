@@ -10,6 +10,7 @@ from dateutil.relativedelta import relativedelta
 from odoo import api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Domain
+from odoo.tools.misc import str2bool
 
 _logger = logging.getLogger(__name__)
 try:
@@ -210,6 +211,19 @@ class AccountLoan(models.Model):
                 self.env._("Borrow type must have negative amount or change the type")
             )
 
+    def _auto_post_moves(self):
+        """
+        Inhertiance hook to conditon posting move
+        at date (False) or right now (True)
+
+        (used like this _post(soft=not loan_id._auto_post_moves())
+        """
+        return str2bool(
+            self.env["ir.config_parameter"].get_param(
+                "account_loan.auto_post_moves_directly", True
+            )
+        )
+
     @api.constrains("loan_amount", "loan_type")
     def _check_loan_type_constrains(self):
         for loan in self:
@@ -380,6 +394,7 @@ class AccountLoan(models.Model):
                 vals["name"] = self._get_default_name(vals)
         return super().create(vals_list)
 
+    @api.private
     def post(self):
         self.ensure_one()
         if not self.start_date:

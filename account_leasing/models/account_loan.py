@@ -35,7 +35,8 @@ class AccountLoan(models.Model):
         "invoice is created",
     )
     post_invoice = fields.Boolean(
-        default=True, help="Invoices will be posted automatically"
+        default=True,
+        help="Invoices will be posted directly, otherwise they will be posted at date",
     )
 
     def _check_laon_type_constrains(self):
